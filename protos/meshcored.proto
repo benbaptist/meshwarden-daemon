@@ -1,0 +1,235 @@
+syntax = "proto3";
+
+package meshcored.v1;
+
+// Full control surface for the MeshCore daemon.
+service MeshCoreDaemon {
+  // Daemon & device status
+  rpc GetStatus(Empty) returns (StatusResponse);
+  rpc GetDeviceInfo(Empty) returns (JsonResponse);
+  rpc GetSelfInfo(Empty) returns (JsonResponse);
+  rpc GetBattery(Empty) returns (JsonResponse);
+  rpc GetDeviceStats(Empty) returns (JsonResponse);
+
+  // Device configuration
+  rpc SetName(SetNameRequest) returns (CommandResult);
+  rpc SetRadio(SetRadioRequest) returns (CommandResult);
+  rpc SetTxPower(SetTxPowerRequest) returns (CommandResult);
+  rpc SetCoords(SetCoordsRequest) returns (CommandResult);
+  rpc SetTime(SetTimeRequest) returns (CommandResult);
+  rpc SendAdvert(SendAdvertRequest) returns (CommandResult);
+  rpc Reboot(Empty) returns (CommandResult);
+
+  // Contacts (backed by the daemon DB, which outgrows the device limit)
+  rpc ListContacts(ListContactsRequest) returns (ListContactsResponse);
+  rpc SyncContacts(Empty) returns (CommandResult);
+  rpc RemoveContact(RemoveContactRequest) returns (CommandResult);
+
+  // Messaging
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+  rpc SendChannelMessage(SendChannelMessageRequest) returns (SendMessageResponse);
+  rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+
+  // Packet log & statistics
+  rpc QueryPackets(QueryPacketsRequest) returns (QueryPacketsResponse);
+  rpc GetPacketStats(PacketStatsRequest) returns (PacketStatsResponse);
+
+  // Live event firehose (every meshcore event as JSON)
+  rpc StreamEvents(StreamEventsRequest) returns (stream DaemonEvent);
+
+  // Escape hatch: raw companion-protocol command frame
+  rpc SendRawCommand(RawCommandRequest) returns (RawCommandResponse);
+
+  // Proxy introspection
+  rpc GetProxyStatus(Empty) returns (ProxyStatusResponse);
+}
+
+message Empty {}
+
+message StatusResponse {
+  bool device_connected = 1;
+  string transport = 2;
+  string device_name = 3;
+  string public_key = 4;
+  uint64 connected_since = 5; // unix seconds, 0 when disconnected
+  uint32 proxy_clients = 6;
+  uint64 packets_logged = 7;
+  uint64 messages_stored = 8;
+  uint64 contacts_stored = 9;
+  string daemon_version = 10;
+}
+
+// Full-fidelity payload from the meshcore library, JSON encoded.
+message JsonResponse {
+  string json = 1;
+}
+
+message CommandResult {
+  bool ok = 1;
+  string error = 2; // empty on success
+  string json = 3;  // response payload, JSON encoded
+}
+
+message SetNameRequest { string name = 1; }
+message SetRadioRequest {
+  double freq = 1; // MHz
+  double bw = 2;   // kHz
+  uint32 sf = 3;
+  uint32 cr = 4;
+}
+message SetTxPowerRequest { uint32 tx_power = 1; }
+message SetCoordsRequest { double lat = 1; double lon = 2; }
+message SetTimeRequest { uint64 epoch_secs = 1; } // 0 = use daemon clock
+message SendAdvertRequest { bool flood = 1; }
+message RemoveContactRequest { string public_key = 1; }
+
+message ListContactsRequest {
+  string query = 1;       // substring of name or pubkey prefix
+  bool device_only = 2;   // only contacts currently on the device
+  uint32 limit = 3;       // default 100, max 1000
+  uint32 offset = 4;
+}
+
+message Contact {
+  string public_key = 1;
+  string adv_name = 2;
+  uint32 type = 3;
+  uint32 flags = 4;
+  int32 out_path_len = 5;
+  string out_path = 6;
+  double adv_lat = 7;
+  double adv_lon = 8;
+  uint64 last_advert = 9;
+  uint64 lastmod = 10;
+  uint64 first_seen = 11;
+  uint64 last_seen = 12;
+  bool on_device = 13;
+}
+
+message ListContactsResponse {
+  repeated Contact contacts = 1;
+  uint32 total = 2;
+}
+
+message SendMessageRequest {
+  string destination = 1; // public key (full or prefix) of the contact
+  string text = 2;
+}
+message SendChannelMessageRequest {
+  uint32 channel_idx = 1;
+  string text = 2;
+}
+message SendMessageResponse {
+  bool ok = 1;
+  string error = 2;
+  string expected_ack = 3;
+  uint64 message_id = 4; // daemon DB row id
+}
+
+message ListMessagesRequest {
+  string peer = 1;               // pubkey prefix filter
+  optional uint32 channel_idx = 2;
+  string direction = 3;          // "in" | "out" | ""
+  uint64 after_ts = 4;
+  uint64 before_ts = 5;
+  uint32 limit = 6;
+  uint32 offset = 7;
+}
+
+message MessageRecord {
+  uint64 id = 1;
+  uint64 ts = 2;
+  string direction = 3;
+  string scope = 4; // "contact" | "channel"
+  string peer = 5;
+  uint32 channel_idx = 6;
+  uint32 txt_type = 7;
+  uint64 sender_timestamp = 8;
+  string text = 9;
+  double snr = 10;
+  string expected_ack = 11;
+  bool acked = 12;
+  string origin = 13; // "device" | "daemon" | "proxy"
+}
+
+message ListMessagesResponse {
+  repeated MessageRecord messages = 1;
+  uint32 total = 2;
+}
+
+message QueryPacketsRequest {
+  uint64 after_ts = 1;
+  uint64 before_ts = 2;
+  optional uint32 payload_type = 3;
+  optional uint32 route_type = 4;
+  uint32 limit = 5;
+  uint32 offset = 6;
+}
+
+message PacketRecord {
+  uint64 id = 1;
+  uint64 ts = 2;
+  string kind = 3; // "rx_log" | "raw"
+  double snr = 4;
+  int32 rssi = 5;
+  int32 route_type = 6;   // -1 when unknown
+  int32 payload_type = 7; // -1 when unknown
+  int32 path_len = 8;
+  string path = 9; // JSON list of hop hashes
+  uint32 payload_len = 10;
+  string payload_hex = 11;
+}
+
+message QueryPacketsResponse {
+  repeated PacketRecord packets = 1;
+  uint64 total = 2;
+}
+
+message PacketStatsRequest {
+  uint64 after_ts = 1;
+  uint64 before_ts = 2;
+  string bucket = 3; // "hour" (default) | "day"
+}
+
+message PacketStatsBucket {
+  uint64 bucket_ts = 1;
+  int32 payload_type = 2; // -1 = unknown
+  int32 route_type = 3;   // -1 = unknown
+  uint64 count = 4;
+  uint64 total_bytes = 5;
+  double avg_snr = 6;
+  double avg_rssi = 7;
+  double min_snr = 8;
+  double max_snr = 9;
+}
+
+message PacketStatsResponse {
+  repeated PacketStatsBucket buckets = 1;
+}
+
+message StreamEventsRequest {
+  repeated string types = 1; // meshcore EventType values; empty = all
+}
+
+message DaemonEvent {
+  string type = 1;
+  uint64 ts = 2;
+  string payload_json = 3;
+}
+
+message RawCommandRequest {
+  bytes frame = 1;    // companion-protocol command frame (without transport header)
+  double timeout = 2; // seconds, 0 = daemon default
+}
+
+message RawCommandResponse {
+  repeated bytes frames = 1; // response frames in order
+}
+
+message ProxyStatusResponse {
+  bool enabled = 1;
+  uint32 clients = 2;
+  repeated string client_addrs = 3;
+  uint64 commands_proxied = 4;
+  uint64 cache_hits = 5;
+}
