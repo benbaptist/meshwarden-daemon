@@ -9,6 +9,8 @@ COPY pyproject.toml ./
 COPY meshcore_daemon ./meshcore_daemon
 RUN pip install --no-cache-dir .
 
+RUN mkdir -p /data/logs && chown -R meshcored:meshcored /data
+
 USER meshcored
 ENV MESHCORED_DATA_DIR=/data
 VOLUME ["/data"]
