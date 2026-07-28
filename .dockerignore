@@ -1,0 +1,10 @@
+.git
+.venv
+venv
+data
+**/__pycache__
+*.py[cod]
+*.egg-info
+.env
+docker-compose.yml
+Dockerfile

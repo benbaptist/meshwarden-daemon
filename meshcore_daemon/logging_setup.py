@@ -13,6 +13,9 @@ def setup_logging(settings: Settings) -> None:
 
     root = logging.getLogger()
     root.setLevel(level)
+    # The meshcore library calls logging.basicConfig() at import time; drop any
+    # pre-existing root handlers so lines aren't emitted twice.
+    root.handlers.clear()
 
     console = logging.StreamHandler()
     console.setFormatter(logging.Formatter(_FORMAT))

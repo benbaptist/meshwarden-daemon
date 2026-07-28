@@ -1,0 +1,22 @@
+services:
+  meshcored:
+    build: .
+    container_name: meshcored
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MESHCORED_DATA_DIR: /data
+    ports:
+      - "${MESHCORED_GRPC_PORT:-50051}:${MESHCORED_GRPC_PORT:-50051}"
+      - "${MESHCORED_PROXY_PORT:-5000}:${MESHCORED_PROXY_PORT:-5000}"
+    volumes:
+      - meshcored-data:/data
+    # For USB serial nodes (MESHCORED_DEVICE_TRANSPORT=serial), map the device
+    # and uncomment; adjust the host path to match MESHCORED_SERIAL_PORT:
+    # devices:
+    #   - "/dev/ttyUSB0:/dev/ttyUSB0"
+    # group_add:
+    #   - dialout
+
+volumes:
+  meshcored-data:
