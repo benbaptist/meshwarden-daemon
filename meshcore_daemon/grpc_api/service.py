@@ -268,7 +268,7 @@ class MeshCoreDaemonService(meshcored_pb2_grpc.MeshCoreDaemonServicer):
             except Exception:
                 continue
             if event.type == EventType.ERROR:
-                break  # No more channels
+                continue  # this channel index doesn't exist, try next
             p = event.payload or {}
             channels.append(pb.ChannelInfo(
                 index=p.get("channel_idx", idx),
