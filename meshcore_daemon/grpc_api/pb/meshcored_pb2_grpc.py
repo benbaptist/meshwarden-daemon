@@ -125,6 +125,11 @@ class MeshCoreDaemonStub:
                 request_serializer=meshcored__pb2.ListMessagesRequest.SerializeToString,
                 response_deserializer=meshcored__pb2.ListMessagesResponse.FromString,
                 _registered_method=True)
+        self.ListChannels = channel.unary_unary(
+                '/meshcored.v1.MeshCoreDaemon/ListChannels',
+                request_serializer=meshcored__pb2.Empty.SerializeToString,
+                response_deserializer=meshcored__pb2.ListChannelsResponse.FromString,
+                _registered_method=True)
         self.QueryPackets = channel.unary_unary(
                 '/meshcored.v1.MeshCoreDaemon/QueryPackets',
                 request_serializer=meshcored__pb2.QueryPacketsRequest.SerializeToString,
@@ -268,6 +273,12 @@ class MeshCoreDaemonServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def ListChannels(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def QueryPackets(self, request, context):
         """Packet log & statistics
         """
@@ -394,6 +405,11 @@ def add_MeshCoreDaemonServicer_to_server(servicer, server):
                     servicer.ListMessages,
                     request_deserializer=meshcored__pb2.ListMessagesRequest.FromString,
                     response_serializer=meshcored__pb2.ListMessagesResponse.SerializeToString,
+            ),
+            'ListChannels': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListChannels,
+                    request_deserializer=meshcored__pb2.Empty.FromString,
+                    response_serializer=meshcored__pb2.ListChannelsResponse.SerializeToString,
             ),
             'QueryPackets': grpc.unary_unary_rpc_method_handler(
                     servicer.QueryPackets,
@@ -908,6 +924,33 @@ class MeshCoreDaemon:
             '/meshcored.v1.MeshCoreDaemon/ListMessages',
             meshcored__pb2.ListMessagesRequest.SerializeToString,
             meshcored__pb2.ListMessagesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def ListChannels(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/meshcored.v1.MeshCoreDaemon/ListChannels',
+            meshcored__pb2.Empty.SerializeToString,
+            meshcored__pb2.ListChannelsResponse.FromString,
             options,
             channel_credentials,
             insecure,

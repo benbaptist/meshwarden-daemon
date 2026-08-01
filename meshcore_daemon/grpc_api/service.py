@@ -256,6 +256,26 @@ class MeshCoreDaemonService(meshcored_pb2_grpc.MeshCoreDaemonServicer):
             ],
         )
 
+    # ------------------------------------------------------------------ channels
+
+    async def ListChannels(self, request, context) -> pb.ListChannelsResponse:
+        channels: list[pb.ChannelInfo] = []
+        for idx in range(8):  # MeshCore supports up to 8 channels
+            try:
+                event = await self._device.command("get_channel", idx)
+            except DeviceUnavailable:
+                break
+            except Exception:
+                continue
+            if event.type == EventType.ERROR:
+                break  # No more channels
+            p = event.payload or {}
+            channels.append(pb.ChannelInfo(
+                index=p.get("channel_idx", idx),
+                name=p.get("channel_name", ""),
+            ))
+        return pb.ListChannelsResponse(channels=channels)
+
     # ------------------------------------------------------------------ packets
 
     async def QueryPackets(self, request, context) -> pb.QueryPacketsResponse:

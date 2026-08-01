@@ -29,6 +29,7 @@ service MeshCoreDaemon {
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
   rpc SendChannelMessage(SendChannelMessageRequest) returns (SendMessageResponse);
   rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse);
+  rpc ListChannels(Empty) returns (ListChannelsResponse);
 
   // Packet log & statistics
   rpc QueryPackets(QueryPacketsRequest) returns (QueryPacketsResponse);
@@ -232,4 +233,18 @@ message ProxyStatusResponse {
   repeated string client_addrs = 3;
   uint64 commands_proxied = 4;
   uint64 cache_hits = 5;
+}
+
+message ChannelInfo {
+  uint32 index = 1;
+  string name = 2;       // human-readable name (e.g. "Primary", "#hashtag")
+  uint32 flags = 3;
+  uint32 frequency = 4;  // kHz, 0 if using default
+  uint32 bandwidth = 5;  // kHz, 0 if using default
+  uint32 sf = 6;         // spreading factor, 0 if using default
+  uint32 cr = 7;         // coding rate, 0 if using default
+}
+
+message ListChannelsResponse {
+  repeated ChannelInfo channels = 1;
 }

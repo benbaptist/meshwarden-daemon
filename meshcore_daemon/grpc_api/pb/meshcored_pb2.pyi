@@ -365,3 +365,27 @@ class ProxyStatusResponse(_message.Message):
     commands_proxied: int
     cache_hits: int
     def __init__(self, enabled: _Optional[bool] = ..., clients: _Optional[int] = ..., client_addrs: _Optional[_Iterable[str]] = ..., commands_proxied: _Optional[int] = ..., cache_hits: _Optional[int] = ...) -> None: ...
+
+class ChannelInfo(_message.Message):
+    __slots__ = ("index", "name", "flags", "frequency", "bandwidth", "sf", "cr")
+    INDEX_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    FLAGS_FIELD_NUMBER: _ClassVar[int]
+    FREQUENCY_FIELD_NUMBER: _ClassVar[int]
+    BANDWIDTH_FIELD_NUMBER: _ClassVar[int]
+    SF_FIELD_NUMBER: _ClassVar[int]
+    CR_FIELD_NUMBER: _ClassVar[int]
+    index: int
+    name: str
+    flags: int
+    frequency: int
+    bandwidth: int
+    sf: int
+    cr: int
+    def __init__(self, index: _Optional[int] = ..., name: _Optional[str] = ..., flags: _Optional[int] = ..., frequency: _Optional[int] = ..., bandwidth: _Optional[int] = ..., sf: _Optional[int] = ..., cr: _Optional[int] = ...) -> None: ...
+
+class ListChannelsResponse(_message.Message):
+    __slots__ = ("channels",)
+    CHANNELS_FIELD_NUMBER: _ClassVar[int]
+    channels: _containers.RepeatedCompositeFieldContainer[ChannelInfo]
+    def __init__(self, channels: _Optional[_Iterable[_Union[ChannelInfo, _Mapping]]] = ...) -> None: ...
