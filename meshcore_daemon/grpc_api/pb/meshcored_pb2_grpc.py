@@ -110,6 +110,11 @@ class MeshCoreDaemonStub:
                 request_serializer=meshcored__pb2.RemoveContactRequest.SerializeToString,
                 response_deserializer=meshcored__pb2.CommandResult.FromString,
                 _registered_method=True)
+        self.Ping = channel.unary_unary(
+                '/meshcored.v1.MeshCoreDaemon/Ping',
+                request_serializer=meshcored__pb2.PingRequest.SerializeToString,
+                response_deserializer=meshcored__pb2.PingResponse.FromString,
+                _registered_method=True)
         self.SendMessage = channel.unary_unary(
                 '/meshcored.v1.MeshCoreDaemon/SendMessage',
                 request_serializer=meshcored__pb2.SendMessageRequest.SerializeToString,
@@ -254,6 +259,13 @@ class MeshCoreDaemonServicer:
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Ping(self, request, context):
+        """TRACE round trip; one five-second deadline including device command queueing.
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def SendMessage(self, request, context):
         """Messaging
         """
@@ -390,6 +402,11 @@ def add_MeshCoreDaemonServicer_to_server(servicer, server):
                     servicer.RemoveContact,
                     request_deserializer=meshcored__pb2.RemoveContactRequest.FromString,
                     response_serializer=meshcored__pb2.CommandResult.SerializeToString,
+            ),
+            'Ping': grpc.unary_unary_rpc_method_handler(
+                    servicer.Ping,
+                    request_deserializer=meshcored__pb2.PingRequest.FromString,
+                    response_serializer=meshcored__pb2.PingResponse.SerializeToString,
             ),
             'SendMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.SendMessage,
@@ -843,6 +860,33 @@ class MeshCoreDaemon:
             '/meshcored.v1.MeshCoreDaemon/RemoveContact',
             meshcored__pb2.RemoveContactRequest.SerializeToString,
             meshcored__pb2.CommandResult.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def Ping(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/meshcored.v1.MeshCoreDaemon/Ping',
+            meshcored__pb2.PingRequest.SerializeToString,
+            meshcored__pb2.PingResponse.FromString,
             options,
             channel_credentials,
             insecure,

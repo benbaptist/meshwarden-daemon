@@ -10,6 +10,22 @@ class Empty(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
+class PingRequest(_message.Message):
+    __slots__ = ("public_key", "hash_size")
+    PUBLIC_KEY_FIELD_NUMBER: _ClassVar[int]
+    HASH_SIZE_FIELD_NUMBER: _ClassVar[int]
+    public_key: str
+    hash_size: int
+    def __init__(self, public_key: _Optional[str] = ..., hash_size: _Optional[int] = ...) -> None: ...
+
+class PingResponse(_message.Message):
+    __slots__ = ("elapsed_ms", "snr")
+    ELAPSED_MS_FIELD_NUMBER: _ClassVar[int]
+    SNR_FIELD_NUMBER: _ClassVar[int]
+    elapsed_ms: float
+    snr: _containers.RepeatedScalarFieldContainer[float]
+    def __init__(self, elapsed_ms: _Optional[float] = ..., snr: _Optional[_Iterable[float]] = ...) -> None: ...
+
 class StatusResponse(_message.Message):
     __slots__ = ("device_connected", "transport", "device_name", "public_key", "connected_since", "proxy_clients", "packets_logged", "messages_stored", "contacts_stored", "daemon_version")
     DEVICE_CONNECTED_FIELD_NUMBER: _ClassVar[int]

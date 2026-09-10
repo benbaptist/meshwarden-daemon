@@ -15,6 +15,7 @@ from .. import __version__
 from ..config import Settings
 from ..device import DeviceManager, DeviceUnavailable
 from ..proxy import MeshCoreProxy
+from ..ping import PingManager
 from ..storage import ContactStore, MessageStore, PacketStore
 from .pb import meshcored_pb2 as pb
 from .pb import meshcored_pb2_grpc
@@ -50,6 +51,7 @@ class MeshCoreDaemonService(meshcored_pb2_grpc.MeshCoreDaemonServicer):
         self._contacts = contacts
         self._messages = messages
         self._proxy = proxy
+        self._pings = PingManager(device, contacts)
         self._event_streams: set[asyncio.Queue] = set()
         # single wildcard subscription feeds every StreamEvents client
         device.on_event(None, self._on_any_event)
@@ -84,6 +86,17 @@ class MeshCoreDaemonService(meshcored_pb2_grpc.MeshCoreDaemonServicer):
         return pb.JsonResponse(json=_dumps(event.payload if event else {}))
 
     # ------------------------------------------------------------------ status
+
+    async def Ping(self, request, context) -> pb.PingResponse:
+        try:
+            elapsed, snrs = await self._pings.ping(request.public_key, request.hash_size or 1)
+            return pb.PingResponse(elapsed_ms=elapsed, snr=snrs)
+        except ValueError as exc:
+            await context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(exc))
+        except TimeoutError:
+            await context.abort(grpc.StatusCode.DEADLINE_EXCEEDED, "no matching trace within five seconds")
+        except DeviceUnavailable as exc:
+            await context.abort(grpc.StatusCode.UNAVAILABLE, str(exc))
 
     async def GetStatus(self, request, context) -> pb.StatusResponse:
         mc = self._device.mc

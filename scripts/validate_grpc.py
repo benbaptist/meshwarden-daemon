@@ -8,6 +8,8 @@ Usage:
 from __future__ import annotations
 
 import sys
+import unittest
+from pathlib import Path
 import grpc
 from meshcore_daemon.grpc_api.pb import meshcored_pb2 as pb
 from meshcore_daemon.grpc_api.pb.meshcored_pb2_grpc import MeshCoreDaemonStub
@@ -33,6 +35,9 @@ def test(name: str, fn, *args) -> bool:
 
 
 def main():
+    if "--offline" in sys.argv:
+        suite = unittest.defaultTestLoader.discover(str(Path(__file__).resolve().parents[1] / "tests"))
+        return 0 if unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful() else 1
     target = f"{sys.argv[1]}:{sys.argv[2]}" if len(sys.argv) >= 3 else "localhost:50051"
     print(f"Validating daemon at {target}…\n")
 
@@ -58,6 +63,12 @@ def main():
     print("\n── Contacts ──")
     results["ListContacts"] = test("ListContacts", stub.ListContacts, pb.ListContactsRequest(limit=5))
     results["SyncContacts"] = test("SyncContacts", stub.SyncContacts, pb.Empty())
+    # Validate Ping exists without making a radio transmission.
+    try:
+        stub.Ping(pb.PingRequest(public_key="invalid", hash_size=3), timeout=5)
+        results["Ping rejects invalid input"] = False
+    except grpc.RpcError as exc:
+        results["Ping rejects invalid input"] = exc.code() == grpc.StatusCode.INVALID_ARGUMENT
 
     # ── Messaging ──
     print("\n── Messaging ──")

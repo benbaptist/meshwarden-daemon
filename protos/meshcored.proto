@@ -24,6 +24,8 @@ service MeshCoreDaemon {
   rpc ListContacts(ListContactsRequest) returns (ListContactsResponse);
   rpc SyncContacts(Empty) returns (CommandResult);
   rpc RemoveContact(RemoveContactRequest) returns (CommandResult);
+  // TRACE round trip; one five-second deadline including device command queueing.
+  rpc Ping(PingRequest) returns (PingResponse);
 
   // Messaging
   rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
@@ -46,6 +48,15 @@ service MeshCoreDaemon {
 }
 
 message Empty {}
+
+message PingRequest {
+  string public_key = 1; // full stored contact key; repeater or room server only
+  uint32 hash_size = 2; // 0 defaults to 1; allowed trace hash widths: 1, 2, 4
+}
+message PingResponse {
+  double elapsed_ms = 1;
+  repeated float snr = 2; // each trace hop, then final reception at companion
+}
 
 message StatusResponse {
   bool device_connected = 1;

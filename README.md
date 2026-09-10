@@ -54,6 +54,24 @@ Regenerate gRPC stubs after editing [protos/meshcored.proto](protos/meshcored.pr
 ./scripts/gen_protos.sh
 ```
 
+## Ping RPC
+
+`Ping` sends a MeshCore TRACE round trip to a stored repeater or room server.
+`hash_size` is a trace route-hash width (1 by default; 2 and 4 supported), not
+payload size. One five-second deadline covers directory lookup, command queueing,
+send acknowledgement and the returned trace. Timeouts use `DEADLINE_EXCEEDED`.
+The returned frame must match fresh tag/auth correlation values, flags and the
+entire round-trip route; neither a command ACK nor a message ACK is success.
+The trace auth field is a correlation value, not cryptographic authentication.
+
+Known direct routes and forwarding-enabled servers are required. Widening stored
+hashes requires uniquely resolvable relay keys; no route discovery, login or
+contact mutation is performed. Return relays reverse the outbound route.
+Multi-byte trace support requires compatible firmware (MeshCore v1.11+).
+Trace semantics were verified against upstream `src/Mesh.cpp`, `src/Packet.cpp`
+and `examples/companion_radio/MyMesh.cpp`, and installed meshcore 2.3.8.
+Run `scripts/validate_grpc.py --offline` for hardware-free regression tests.
+
 ## Notes on message fetching
 
 The companion protocol deletes a queued message once *someone* syncs it. With
