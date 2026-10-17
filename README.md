@@ -43,6 +43,19 @@ python3.11 -m venv .venv
 
 Configuration is environment-only (or `.env`); see [.env.example](.env.example).
 
+## Development
+
+The gRPC definition lives in the shared `meshwarden-protos` repo, included as a
+git submodule at `protos/`. Clone with `--recurse-submodules` (or run
+`git submodule update --init`), then after changing the proto regenerate the stubs:
+
+```bash
+.venv/bin/pip install -e '.[dev]'
+bash protos/gen_python.sh meshcore_daemon/grpc_api/pb
+```
+
+Run the tests with `.venv/bin/python -m unittest discover tests`.
+
 ## Vibecoded
 
 This project was mostly written by AI coding agents as an experiment in
