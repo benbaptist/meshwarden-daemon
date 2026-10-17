@@ -12,10 +12,10 @@ from meshcore import EventType
 from meshcore.events import Event
 from meshcore.packets import CommandType, PacketType
 
-from meshcore_daemon.channel_backfill import GRP_TXT, ChannelBackfill
-from meshcore_daemon.channels import ChannelTracker
-from meshcore_daemon.storage import ChannelStore, Database, MessageStore, PacketStore
-from meshcore_daemon.storage.database import MIGRATIONS, SCHEMA
+from meshwarden_daemon.channel_backfill import GRP_TXT, ChannelBackfill
+from meshwarden_daemon.channels import ChannelTracker
+from meshwarden_daemon.storage import ChannelStore, Database, MessageStore, PacketStore
+from meshwarden_daemon.storage.database import MIGRATIONS, SCHEMA
 
 SECRET_A = bytes(range(16))
 SECRET_B = bytes(range(16, 32))

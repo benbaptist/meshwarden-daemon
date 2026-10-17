@@ -35,7 +35,7 @@ class Daemon:
     async def run(self) -> None:
         settings = self.settings
         setup_logging(settings)
-        logger.info("meshcore-daemon starting")
+        logger.info("meshwarden-daemon starting")
 
         db = Database(settings.db_path)
         await db.open()
@@ -72,7 +72,7 @@ class Daemon:
         try:
             await self._stop.wait()
         finally:
-            logger.info("meshcore-daemon shutting down")
+            logger.info("meshwarden-daemon shutting down")
             retention_task.cancel()
             await device.stop()
             device_task.cancel()
@@ -85,4 +85,4 @@ class Daemon:
                 await proxy.stop()
             await grpc_server.stop()
             await db.close()
-            logger.info("meshcore-daemon stopped")
+            logger.info("meshwarden-daemon stopped")

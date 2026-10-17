@@ -38,7 +38,7 @@ For USB nodes uncomment the `devices:` mapping in `docker-compose.yml`.
 ```bash
 python3.11 -m venv .venv
 .venv/bin/pip install -e .
-.venv/bin/meshcore-daemon
+.venv/bin/meshwarden-daemon
 ```
 
 Configuration is environment-only (or `.env`); see [.env.example](.env.example).
@@ -51,7 +51,7 @@ git submodule at `protos/`. Clone with `--recurse-submodules` (or run
 
 ```bash
 .venv/bin/pip install -e '.[dev]'
-bash protos/gen_python.sh meshcore_daemon/grpc_api/pb
+bash protos/gen_python.sh meshwarden_daemon/grpc_api/pb
 ```
 
 Run the tests with `.venv/bin/python -m unittest discover tests`.

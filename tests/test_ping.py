@@ -9,10 +9,10 @@ from meshcore import EventType
 from meshcore.events import Event
 from meshcore.commands.messaging import MessagingCommands
 
-from meshcore_daemon.device import DeviceUnavailable
-from meshcore_daemon.ping import PING_TIMEOUT, PingManager, trace_route
-from meshcore_daemon.grpc_api.service import MeshCoreDaemonService
-from meshcore_daemon.grpc_api.pb import meshcored_pb2 as pb
+from meshwarden_daemon.device import DeviceUnavailable
+from meshwarden_daemon.ping import PING_TIMEOUT, PingManager, trace_route
+from meshwarden_daemon.grpc_api.service import MeshCoreDaemonService
+from meshwarden_daemon.grpc_api.pb import meshcored_pb2 as pb
 
 
 KEY = "abcdef01" * 8
@@ -98,7 +98,7 @@ class PingTests(unittest.IsolatedAsyncioTestCase):
                 await self.manager._on_frame(frame)
             return Event(EventType.MSG_SENT, {})
         self.device.command.side_effect = send
-        with patch("meshcore_daemon.ping.PING_TIMEOUT", 0.02), self.assertRaises(TimeoutError):
+        with patch("meshwarden_daemon.ping.PING_TIMEOUT", 0.02), self.assertRaises(TimeoutError):
             await self.manager.ping(KEY, 1)
         self.assertFalse(self.manager.pending)
 
@@ -111,7 +111,7 @@ class PingTests(unittest.IsolatedAsyncioTestCase):
                 cancelled.set()
         self.device.command.side_effect = queued
         start = asyncio.get_running_loop().time()
-        with patch("meshcore_daemon.ping.PING_TIMEOUT", 0.02), self.assertRaises(TimeoutError):
+        with patch("meshwarden_daemon.ping.PING_TIMEOUT", 0.02), self.assertRaises(TimeoutError):
             await self.manager.ping(KEY, 1)
         self.assertLess(asyncio.get_running_loop().time() - start, 0.2)
         self.assertTrue(cancelled.is_set())

@@ -3,9 +3,9 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock
 
-from meshcore_daemon.grpc_api.pb import meshcored_pb2 as pb
-from meshcore_daemon.grpc_api.service import MeshCoreDaemonService
-from meshcore_daemon.proxy import MeshCoreProxy
+from meshwarden_daemon.grpc_api.pb import meshcored_pb2 as pb
+from meshwarden_daemon.grpc_api.service import MeshCoreDaemonService
+from meshwarden_daemon.proxy import MeshCoreProxy
 
 
 class ProxyShutdownTests(unittest.IsolatedAsyncioTestCase):

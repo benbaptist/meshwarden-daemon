@@ -1,4 +1,4 @@
-"""Entry point: ``python -m meshcore_daemon`` or the ``meshcore-daemon`` script."""
+"""Entry point: ``python -m meshwarden_daemon`` or the ``meshwarden-daemon`` script."""
 
 import asyncio
 import signal

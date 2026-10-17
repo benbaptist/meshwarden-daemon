@@ -6,7 +6,7 @@ RUN useradd --create-home --uid 1000 meshcored
 WORKDIR /app
 
 COPY pyproject.toml ./
-COPY meshcore_daemon ./meshcore_daemon
+COPY meshwarden_daemon ./meshwarden_daemon
 RUN pip install --no-cache-dir .
 
 RUN mkdir -p /data/logs && chown -R meshcored:meshcored /data
@@ -19,6 +19,6 @@ VOLUME ["/data"]
 EXPOSE 50051 5000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
-    CMD ["python", "-m", "meshcore_daemon.healthcheck"]
+    CMD ["python", "-m", "meshwarden_daemon.healthcheck"]
 
-ENTRYPOINT ["meshcore-daemon"]
+ENTRYPOINT ["meshwarden-daemon"]

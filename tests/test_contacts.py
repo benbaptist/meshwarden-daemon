@@ -4,8 +4,8 @@ import time
 import unittest
 from pathlib import Path
 
-from meshcore_daemon.storage import ContactStore, Database
-from meshcore_daemon.storage.database import MIGRATIONS, SCHEMA
+from meshwarden_daemon.storage import ContactStore, Database
+from meshwarden_daemon.storage.database import MIGRATIONS, SCHEMA
 
 DAY = 86400
 

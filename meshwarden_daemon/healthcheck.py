@@ -1,6 +1,6 @@
 """Docker healthcheck: exits 0 when the daemon's gRPC health endpoint is SERVING.
 
-Usage: python -m meshcore_daemon.healthcheck
+Usage: python -m meshwarden_daemon.healthcheck
 """
 
 import sys
